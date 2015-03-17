@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-ear" name="JSLNotebookService:ear exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/JSLNotebookService_ear_exploded</output-path>
+    <root id="root">
+      <element id="directory" name="ejb.jar">
+        <element id="artifact" artifact-name="JSLNotebookService:ejb exploded" />
+      </element>
+    </root>
+  </artifact>
+</component>

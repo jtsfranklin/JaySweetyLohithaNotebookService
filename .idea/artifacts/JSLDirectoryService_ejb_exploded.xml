@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-ejb" name="JSLDirectoryService:ejb exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/JSLDirectoryService_ejb_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="JSLDirectoryService/ejb/EJB" />
+      <element id="module-output" name="JSLDirectoryService" />
+      <element id="module-output" name="JSLDomain" />
+    </root>
+  </artifact>
+</component>

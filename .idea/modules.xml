@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/JSLDirectoryService/JSLDirectoryService.iml" filepath="$PROJECT_DIR$/JSLDirectoryService/JSLDirectoryService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JSLDomain/JSLDomain.iml" filepath="$PROJECT_DIR$/JSLDomain/JSLDomain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JSLNotebookService/JSLNotebookService.iml" filepath="$PROJECT_DIR$/JSLNotebookService/JSLNotebookService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JSLReplicatorService/JSLReplicatorService.iml" filepath="$PROJECT_DIR$/JSLReplicatorService/JSLReplicatorService.iml" />
+    </modules>
+  </component>
+</project>
