@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="ear" name="JSLDirectoryServiceEar">
+    <output-path>$PROJECT_DIR$/out/artifacts/JSLDirectoryServiceEar</output-path>
+    <root id="archive" name="JSLDirectoryServiceEar.ear">
+      <element id="directory" name="lib">
+        <element id="artifact" artifact-name="JSLDirectoryService" />
+        <element id="artifact" artifact-name="JSLDomain" />
+      </element>
+    </root>
+  </artifact>
+</component>
