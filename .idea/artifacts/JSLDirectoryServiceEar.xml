@@ -6,6 +6,11 @@
         <element id="artifact" artifact-name="JSLDirectoryService" />
         <element id="artifact" artifact-name="JSLDomain" />
       </element>
+      <element id="javaee-facet-resources" facet="JSLDirectoryService/ejb/EJB" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/JSLDirectoryService/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/JSLDirectoryService/META-INF/application.xml" />
+      </element>
     </root>
   </artifact>
 </component>

@@ -3,9 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts/JSLDirectoryService</output-path>
     <root id="archive" name="JSLDirectoryService.jar">
       <element id="module-output" name="JSLDirectoryService" />
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/JSLDirectoryService/META-INF/MANIFEST.MF" />
-      </element>
     </root>
   </artifact>
 </component>
