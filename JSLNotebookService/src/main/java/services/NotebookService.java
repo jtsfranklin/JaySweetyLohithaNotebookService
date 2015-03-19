@@ -89,18 +89,28 @@ public class NotebookService {
     @POST
     @Path("/notebook")
     @Produces(MediaType.APPLICATION_XML)
-    public Response postNotebook(String title) throws NamingException {
-        if(title == null || title == "") {
+    public Response postNotebook(Notebook notebook) throws NamingException {
+
+        // The request content consists of the new notebook's header, with only a title.
+        if(notebook.getTitle() == null || notebook.getTitle() == "") {
             return Response.status(400).build();
         }
+
         try {
+
+            // Locate the directory service
             Directory directory = directoryFactory.Create();
-            String notebookId = directory.createNotebook(title, getSelfHostPort());
-            Notebook notebook = new Notebook();
-            notebook.setTitle(title);
+
+            // Create a new notebook (i.e., add it to our repository)
+            String notebookId = directory.createNotebook(notebook.getTitle(), getSelfHostPort());
             notebook.setId(notebookId);
+            notebook.setPrimaryNotebookUrl(this.getSelfHostPort());
             notebookRepository.add(notebook);
+
+            // For a successful request, the response content is the notebook's header,
+            // updated to include the newly-assigned id and the URL of the primary server.
             return Response.ok(notebook).build();
+
         } catch (NotebookAlreadyExistsException e) {
             return Response.status(409).build();
         } catch (BadAddressException e) {
@@ -112,13 +122,29 @@ public class NotebookService {
     @Path("/notes/{notebookId}")
     @Produces(MediaType.APPLICATION_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
-                             String content) {
+                             Note note) {
+
+        // The request content must be a <note> element containing only a <content> element.
+        if(note.getContent() == null
+                || note.getId() != null) {
+            return Response.status(400).build();
+        }
+
+        // Create the note in the given notebook
         Notebook notebook = notebookRepository.findNotebook(notebookId);
         if (notebook == null) {
             return Response.status(404).build();
         }
-        Note note = notebook.createNote(content);
-        return Response.ok(note).build();
+        Note newNote = notebook.createNote(note.getContent());
+
+        // TODO: If a secondary server for the notebook receives this request, it should re-submit it to the
+        // notebook's primary server, and return the response code and content received.
+
+        // TODO: When a note is created, the notebook's primary server is responsible for informing any
+        // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
+
+        // The response is the new note, including the noteId assigned by the primary server.
+        return Response.ok(newNote).build();
     }
 
 

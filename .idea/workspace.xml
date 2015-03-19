@@ -96,13 +96,13 @@
       <file leaf-file-name="NotebookService.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/JSLNotebookService/src/main/java/services/NotebookService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2345679" vertical-offset="1180" max-vertical-offset="2482">
-              <caret line="92" column="34" selection-start-line="92" selection-start-column="34" selection-end-line="92" selection-end-column="34" />
+            <state vertical-scroll-proportion="0.25255102" vertical-offset="1414" max-vertical-offset="2924">
+              <caret line="106" column="67" selection-start-line="106" selection-start-column="67" selection-end-line="106" selection-end-column="67" />
               <folding>
-                <element signature="e#3845#3846#0" expanded="true" />
-                <element signature="e#3906#3907#0" expanded="true" />
-                <element signature="e#4265#4266#0" expanded="true" />
-                <element signature="e#4343#4344#0" expanded="true" />
+                <element signature="e#5069#5070#0" expanded="true" />
+                <element signature="e#5130#5131#0" expanded="true" />
+                <element signature="e#5489#5490#0" expanded="true" />
+                <element signature="e#5567#5568#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -872,12 +872,12 @@
       <workItem from="1426556814247" duration="4172000" />
       <workItem from="1426561796087" duration="306000" />
       <workItem from="1426643223951" duration="4145000" />
-      <workItem from="1426648002588" duration="5197000" />
+      <workItem from="1426648002588" duration="6430000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13820000" />
+    <option name="totallyTimeSpent" value="15053000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1296" height="776" extended-state="6" />
@@ -933,14 +933,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/JSLNotebookService/src/main/java/services/NotebookService.java</url>
-          <line>92</line>
-          <properties />
-        </line-breakpoint>
-      </breakpoints>
-      <option name="time" value="2" />
+      <option name="time" value="3" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1009,10 +1002,10 @@
             <element signature="e#1464#1465#0" expanded="false" />
             <element signature="e#2027#2028#0" expanded="false" />
             <element signature="e#2073#2074#0" expanded="false" />
-            <element signature="e#3845#3846#0" expanded="true" />
-            <element signature="e#3906#3907#0" expanded="true" />
-            <element signature="e#4265#4266#0" expanded="true" />
-            <element signature="e#4343#4344#0" expanded="true" />
+            <element signature="e#5069#5070#0" expanded="true" />
+            <element signature="e#5130#5131#0" expanded="true" />
+            <element signature="e#5489#5490#0" expanded="true" />
+            <element signature="e#5567#5568#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1090,10 +1083,10 @@
             <element signature="e#1464#1465#0" expanded="false" />
             <element signature="e#2027#2028#0" expanded="false" />
             <element signature="e#2073#2074#0" expanded="false" />
-            <element signature="e#3845#3846#0" expanded="true" />
-            <element signature="e#3906#3907#0" expanded="true" />
-            <element signature="e#4265#4266#0" expanded="true" />
-            <element signature="e#4343#4344#0" expanded="true" />
+            <element signature="e#5069#5070#0" expanded="true" />
+            <element signature="e#5130#5131#0" expanded="true" />
+            <element signature="e#5489#5490#0" expanded="true" />
+            <element signature="e#5567#5568#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1181,10 +1174,10 @@
             <element signature="e#1464#1465#0" expanded="false" />
             <element signature="e#2027#2028#0" expanded="false" />
             <element signature="e#2073#2074#0" expanded="false" />
-            <element signature="e#3845#3846#0" expanded="true" />
-            <element signature="e#3906#3907#0" expanded="true" />
-            <element signature="e#4265#4266#0" expanded="true" />
-            <element signature="e#4343#4344#0" expanded="true" />
+            <element signature="e#5069#5070#0" expanded="true" />
+            <element signature="e#5130#5131#0" expanded="true" />
+            <element signature="e#5489#5490#0" expanded="true" />
+            <element signature="e#5567#5568#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1391,13 +1384,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/JSLNotebookService/src/main/java/services/NotebookService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2345679" vertical-offset="1180" max-vertical-offset="2482">
-          <caret line="92" column="34" selection-start-line="92" selection-start-column="34" selection-end-line="92" selection-end-column="34" />
+        <state vertical-scroll-proportion="0.25255102" vertical-offset="1414" max-vertical-offset="2924">
+          <caret line="106" column="67" selection-start-line="106" selection-start-column="67" selection-end-line="106" selection-end-column="67" />
           <folding>
-            <element signature="e#3845#3846#0" expanded="true" />
-            <element signature="e#3906#3907#0" expanded="true" />
-            <element signature="e#4265#4266#0" expanded="true" />
-            <element signature="e#4343#4344#0" expanded="true" />
+            <element signature="e#5069#5070#0" expanded="true" />
+            <element signature="e#5130#5131#0" expanded="true" />
+            <element signature="e#5489#5490#0" expanded="true" />
+            <element signature="e#5567#5568#0" expanded="true" />
           </folding>
         </state>
       </provider>
