@@ -1,15 +1,15 @@
 <component name="ArtifactManager">
-  <artifact type="war" name="JSLNotebookService">
+  <artifact type="war" build-on-make="true" name="JSLNotebookService">
     <output-path>$PROJECT_DIR$/out/artifacts/JSLNotebookService</output-path>
     <root id="archive" name="JSLNotebookService.war">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="JSLNotebookService" />
-          <element id="module-output" name="JSLDirectoryService" />
-          <element id="module-output" name="JSLDomain" />
         </element>
         <element id="directory" name="lib">
           <element id="library" level="project" name="ejb-3.2" />
+          <element id="artifact" artifact-name="JSLDomain" />
+          <element id="library" level="project" name="Jersey-2.2" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="JSLNotebookService/ejb/EJB" />

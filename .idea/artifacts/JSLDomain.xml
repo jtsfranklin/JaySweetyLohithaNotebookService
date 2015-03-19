@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="JSLDomain">
+  <artifact type="jar" build-on-make="true" name="JSLDomain">
     <output-path>$PROJECT_DIR$/out/artifacts/JSLDomain</output-path>
     <root id="archive" name="JSLDomain.jar">
       <element id="module-output" name="JSLDomain" />
