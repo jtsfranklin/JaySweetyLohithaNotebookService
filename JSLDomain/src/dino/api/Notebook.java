@@ -1,6 +1,7 @@
 package dino.api;
 
 import entities.Note;
+import entities.NotebookList;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,6 +19,12 @@ public class Notebook implements Serializable {
 
     private List<Note> notes = new ArrayList<Note>();
     private long lastNoteId = 0;
+
+
+    @XmlElement
+    public List<Note> getNotes() {
+        return notes;
+    }
 
     @XmlElement
 	public String getId() {
