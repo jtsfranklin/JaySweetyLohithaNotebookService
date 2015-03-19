@@ -89,7 +89,10 @@ public class NotebookService {
     @POST
     @Path("/notebook")
     @Produces(MediaType.APPLICATION_XML)
-    public Response postNotebook(@PathParam("title") String title) throws NamingException {
+    public Response postNotebook(String title) throws NamingException {
+        if(title == null || title == "") {
+            return Response.status(400).build();
+        }
         try {
             Directory directory = directoryFactory.Create();
             String notebookId = directory.createNotebook(title, getSelfHostPort());

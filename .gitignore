@@ -2,3 +2,5 @@ out/
 lib/
 META-INF/
 WEB-INF/
+JSLNotebookService/target
+JSLDirectoryService/target
