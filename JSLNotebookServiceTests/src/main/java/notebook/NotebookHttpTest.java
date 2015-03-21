@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 public class NotebookHttpTest {
 	
 	// useful constants
-	public static final String      team = System.getProperty("JSLNotebookService", "dino");
+	public static final String      team = System.getProperty("team", "JSLNotebookService");
 	public static final String  dinoUrl1 = System.getProperty("url1", "http://localhost:8080/" + team);
 	public static final String  dinoUrl2 = System.getProperty("url2", "http://localhost:8080/" + team + "2");
 	public static final String  dinoUrl3 = System.getProperty("url3", "http://localhost:8080/" + team + "3");

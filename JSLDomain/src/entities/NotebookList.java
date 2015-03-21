@@ -36,4 +36,9 @@ public class NotebookList {
     public void addNotebook(Notebook notebook) {
         notebooks.add(notebook);
     }
+
+    public void deleteNotebook(String notebookId) {
+        Notebook notebookToDelete = findById(notebookId);
+        notebooks.remove(notebookToDelete);
+    }
 }

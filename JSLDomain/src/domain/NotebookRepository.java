@@ -31,4 +31,9 @@ public class NotebookRepository {
     public void add(Notebook notebook) {
         notebooks.addNotebook(notebook);
     }
+
+    public void deleteNotebook(String notebookId) {
+        notebooks.deleteNotebook(notebookId);
+    }
+
 }

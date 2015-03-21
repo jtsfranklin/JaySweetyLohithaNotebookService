@@ -47,6 +47,20 @@ public class NotebookService {
         return Response.ok(notebookList).build();
     }
 
+    @DELETE
+    @Path("/notebook/{notebookId}")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response deleteNotebook(@PathParam("notebookId") String notebookId) {
+
+        Notebook notebook = notebookRepository.findNotebook(notebookId);
+        if (notebook == null) {
+            return Response.status(404).build();
+        } else {
+            notebookRepository.deleteNotebook(notebookId);
+            return Response.ok().build();
+        }
+    }
+
     @GET
     @Path("/notebook")
     @Produces(MediaType.APPLICATION_XML)
