@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/JSLDirectoryService/JSLDirectoryService.iml" filepath="$PROJECT_DIR$/JSLDirectoryService/JSLDirectoryService.iml" />
       <module fileurl="file://$PROJECT_DIR$/JSLDomain/JSLDomain.iml" filepath="$PROJECT_DIR$/JSLDomain/JSLDomain.iml" />
       <module fileurl="file://$PROJECT_DIR$/JSLNotebookService/JSLNotebookService.iml" filepath="$PROJECT_DIR$/JSLNotebookService/JSLNotebookService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JSLNotebookServiceTests/JSLNotebookServiceTests.iml" filepath="$PROJECT_DIR$/JSLNotebookServiceTests/JSLNotebookServiceTests.iml" />
       <module fileurl="file://$PROJECT_DIR$/JSLReplicatorService/JSLReplicatorService.iml" filepath="$PROJECT_DIR$/JSLReplicatorService/JSLReplicatorService.iml" />
     </modules>
   </component>

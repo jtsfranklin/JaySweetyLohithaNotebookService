@@ -91,6 +91,7 @@ public class NotebookService {
     @Produces(MediaType.APPLICATION_XML)
     public Response postNotebook(Notebook notebook) throws NamingException {
 
+
         // The request content consists of the new notebook's header, with only a title.
         if(notebook.getTitle() == null || notebook.getTitle() == "") {
             return Response.status(400).build();

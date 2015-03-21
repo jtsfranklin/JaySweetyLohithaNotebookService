@@ -1,0 +1,30 @@
+<component name="libraryTable">
+  <library name="JAX-WS-Glassfish / JAX-WS 2.2 RI / Metro 1.X / JWSDP 2.2" type="JAX-WS">
+    <properties version="Glassfish / JAX-WS 2.2 RI / Metro 1.X / JWSDP 2.2" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/gmbal-api-only.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/ha-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/javax.annotation.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jaxb-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/FastInoset.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jaxb-impl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jaxws-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jaxb-xjc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jaxws-tools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jsr181-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/mail.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/management-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/mimepull.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/jaxws-rt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/saaj-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/policy.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/stax2-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/stax-ex.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/saaj-impl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/streambuffer.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JSLNotebookServiceTests/lib/woodstox-core-asl.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
