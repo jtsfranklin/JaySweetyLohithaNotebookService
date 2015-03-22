@@ -1,9 +1,11 @@
 package services;
 
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.naming.NamingException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -24,12 +26,17 @@ import entities.NotebookList;
 @Stateless
 public class NotebookService {
 
-    private static NotebookRepository notebookRepository = new NotebookRepository();
+    private static NotebookRepository primaryNotebookRepository = new NotebookRepository();
+    private static NotebookRepository secondaryNotebookRepository = new NotebookRepository();
+
     private static DirectoryFactory directoryFactory = new DirectoryFactory();
     private static String selfHostport = null;
 
     @Context
     UriInfo uri;
+
+    @Context
+    ServletContext context;
 
     private String getSelfHostPort() {
         if (selfHostport == null) {
@@ -52,11 +59,11 @@ public class NotebookService {
     @Produces(MediaType.APPLICATION_XML)
     public Response deleteNotebook(@PathParam("notebookId") String notebookId) {
 
-        Notebook notebook = notebookRepository.findNotebook(notebookId);
+        Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
         if (notebook == null) {
             return Response.status(404).build();
         } else {
-            notebookRepository.deleteNotebook(notebookId);
+            primaryNotebookRepository.deleteNotebook(notebookId);
             return Response.ok().build();
         }
     }
@@ -65,7 +72,7 @@ public class NotebookService {
     @Path("/notebook")
     @Produces(MediaType.APPLICATION_XML)
     public Response getNotebooks() {
-        return Response.ok(notebookRepository.getNotebooks()).build();
+        return Response.ok(primaryNotebookRepository.getNotebooks()).build();
     }
 
     @GET
@@ -73,7 +80,7 @@ public class NotebookService {
     @Produces(MediaType.APPLICATION_XML)
     public Response getNotebook(@PathParam("notebookId") String notebookId) {
 
-        Notebook notebook = notebookRepository.findNotebook(notebookId);
+        Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
         if (notebook == null) {
             return Response.status(404).build();
         } else {
@@ -95,7 +102,7 @@ public class NotebookService {
     public Response getNote(@PathParam("notebookId") String notebookId,
                             @PathParam("noteId") String noteId) {
 
-        Note note = notebookRepository.findNote(notebookId, noteId);
+        Note note = primaryNotebookRepository.findNote(notebookId, noteId);
         if(note == null) {
             return Response.status(404).build();
         }
@@ -104,6 +111,17 @@ public class NotebookService {
         }
     }
 
+    @POST
+    @Path("/secondary/notebook")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response postSecondaryNotebook(Notebook notebook)  {
+        if(secondaryNotebookRepository.findNotebook(notebook.getId()) != null)
+        {
+            return Response.status(409).build();
+        }
+        secondaryNotebookRepository.add(notebook);
+        return Response.ok().build();
+    }
 
     @POST
     @Path("/notebook")
@@ -125,7 +143,7 @@ public class NotebookService {
             String notebookId = directory.createNotebook(notebook.getTitle(), getSelfHostPort());
             notebook.setId(notebookId);
             notebook.setPrimaryNotebookUrl(this.getSelfHostPort());
-            notebookRepository.add(notebook);
+            primaryNotebookRepository.add(notebook);
 
             // For a successful request, the response content is the notebook's header,
             // updated to include the newly-assigned id and the URL of the primary server.
@@ -142,7 +160,9 @@ public class NotebookService {
     @Path("/notes/{notebookId}")
     @Produces(MediaType.APPLICATION_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
-                             Note note) {
+                             Note note,
+                             HttpServletRequest request,
+                             HttpServletResponse response) {
 
         // The request content must be a <note> element containing only a <content> element.
         if(note.getContent() == null
@@ -151,7 +171,7 @@ public class NotebookService {
         }
 
         // Create the note in the given notebook
-        Notebook notebook = notebookRepository.findNotebook(notebookId);
+        Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
         if (notebook == null) {
             return Response.status(404).build();
         }
@@ -159,6 +179,7 @@ public class NotebookService {
 
         // TODO: If a secondary server for the notebook receives this request, it should re-submit it to the
         // notebook's primary server, and return the response code and content received.
+        //context.getRequestDispatcher().forward(request,response);
 
 
         // TODO: When a note is created, the notebook's primary server is responsible for informing any
