@@ -7,12 +7,14 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.WebResource;
 
 import com.sun.jersey.api.client.WebResource;
 import dino.api.*;
@@ -22,6 +24,7 @@ import domain.SecondaryServerRepository;
 import entities.Note;
 import entities.NotebookList;
 
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,6 +48,12 @@ public class NotebookService {
 
     @Context
     ServletContext context;
+
+    @Context
+    HttpServletRequest request;
+
+    @Context
+    HttpServletResponse response;
 
     private String getSelfHostPort() {
         if (selfHostport == null) {
@@ -119,10 +128,10 @@ public class NotebookService {
     }
 
     @POST
-    @Path("/config/secondary/{notebookId}/{secondaryUrl}")
+    @Path("/config/secondary/{notebookId}")
     @Produces(MediaType.APPLICATION_XML)
     public Response configPostSecondaryNotebook(@PathParam("notebookId") String notebookId,
-                                            @PathParam("secondaryUrl") String secondaryUrl) {
+                                                String secondaryUrl) {
         try {
             secondaryServerRepository.add(notebookId, secondaryUrl);
         } catch (NotebookAlreadyExistsException e) {
@@ -135,7 +144,7 @@ public class NotebookService {
     @Path("/config/secondary/{notebookId}/{secondaryUrl}")
     @Produces(MediaType.APPLICATION_XML)
     public Response configDeleteSecondaryNotebook(@PathParam("notebookId") String notebookId,
-                                            @PathParam("secondaryUrl") String secondaryUrl) {
+                                                  @PathParam("secondaryUrl") String secondaryUrl) {
         try {
             secondaryServerRepository.delete(notebookId, secondaryUrl);
         } catch (NotebookNotFoundException e) {
@@ -170,20 +179,20 @@ public class NotebookService {
             String primaryNotebookUrl = notebookFromDirectory.getPrimaryNotebookUrl();
 
             // Get the complete notebook from primary
-            Client client = ClientBuilder.newClient();
-            Notebook notebook =
-                    client.target(Paths.get(primaryNotebookUrl, "notebook").toUri())
-                            .request()
-                            .get(Notebook.class);
+            Client client = Client.create();
+            Notebook notebook = client
+                    .resource(primaryNotebookUrl)
+                    .path("/notebook")
+                    .get(Notebook.class);
 
             // Add complete noteboook to our secondary repository
             secondaryNotebookRepository.add(notebook);
 
             // Inform primary server that we're now a secondary server:
             //     PUT {primaryUrl}/config/secondary/{notebookId}/{secondaryUrl}
-            client.target(Paths.get(primaryNotebookUrl, "config", "secondary", notebookId, getSelfHostPort()).toUri())
-                    .request()
-                    .post(null);
+            client.resource(primaryNotebookUrl)
+                    .path("/config/secondary/"+notebookId)
+                    .post(getSelfHostPort());
 
             return Response.ok().build();
 
@@ -229,9 +238,7 @@ public class NotebookService {
     @Path("/notes/{notebookId}")
     @Produces(MediaType.APPLICATION_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
-                             Note note,
-                             HttpServletRequest request,
-                             HttpServletResponse response) {
+                             Note note) {
 
         // The request content must be a <note> element containing only a <content> element.
         if (note.getContent() == null
