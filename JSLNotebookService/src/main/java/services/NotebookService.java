@@ -7,16 +7,23 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.sun.jersey.api.client.WebResource;
 import dino.api.*;
 import domain.DirectoryFactory;
 import domain.NotebookRepository;
+import domain.SecondaryServerRepository;
 import entities.Note;
 import entities.NotebookList;
+
+import java.nio.file.Paths;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Jay on 3/6/2015.
@@ -28,6 +35,7 @@ public class NotebookService {
 
     private static NotebookRepository primaryNotebookRepository = new NotebookRepository();
     private static NotebookRepository secondaryNotebookRepository = new NotebookRepository();
+    private static SecondaryServerRepository secondaryServerRepository = new SecondaryServerRepository();
 
     private static DirectoryFactory directoryFactory = new DirectoryFactory();
     private static String selfHostport = null;
@@ -103,24 +111,85 @@ public class NotebookService {
                             @PathParam("noteId") String noteId) {
 
         Note note = primaryNotebookRepository.findNote(notebookId, noteId);
-        if(note == null) {
+        if (note == null) {
             return Response.status(404).build();
-        }
-        else {
+        } else {
             return Response.ok(note).build();
         }
     }
 
     @POST
-    @Path("/secondary/notebook")
+    @Path("/config/secondary/{notebookId}/{secondaryUrl}")
     @Produces(MediaType.APPLICATION_XML)
-    public Response postSecondaryNotebook(Notebook notebook)  {
-        if(secondaryNotebookRepository.findNotebook(notebook.getId()) != null)
-        {
+    public Response configPostSecondaryNotebook(@PathParam("notebookId") String notebookId,
+                                            @PathParam("secondaryUrl") String secondaryUrl) {
+        try {
+            secondaryServerRepository.add(notebookId, secondaryUrl);
+        } catch (NotebookAlreadyExistsException e) {
             return Response.status(409).build();
         }
-        secondaryNotebookRepository.add(notebook);
         return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/config/secondary/{notebookId}/{secondaryUrl}")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response configDeleteSecondaryNotebook(@PathParam("notebookId") String notebookId,
+                                            @PathParam("secondaryUrl") String secondaryUrl) {
+        try {
+            secondaryServerRepository.delete(notebookId, secondaryUrl);
+        } catch (NotebookNotFoundException e) {
+            return Response.status(404).build();
+        }
+        return Response.ok().build();
+    }
+
+
+    // Creates a secondary copy of a notebook in the server that receives the request.
+    // The secondary server is responsible for notifying the primary that the secondary copy has been created.
+    @POST
+    @Path("/secondary/{notebookId}")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response postSecondaryNotebook(@PathParam("notebookId") String notebookId) {
+        try {
+            // Make sure it doesn't already exist
+            if (secondaryNotebookRepository.findNotebook(notebookId) != null) {
+                return Response.status(409).build();
+            }
+
+            // Get the notebook details from the directory
+            Directory directory = directoryFactory.Create();
+            Notebook notebookFromDirectory = directory.getNotebook(notebookId);
+
+            // Make sure the notebook exists
+            if (notebookFromDirectory == null) {
+                return Response.status(404).build();
+            }
+
+            // Extract the notebook's primary Url
+            String primaryNotebookUrl = notebookFromDirectory.getPrimaryNotebookUrl();
+
+            // Get the complete notebook from primary
+            Client client = ClientBuilder.newClient();
+            Notebook notebook =
+                    client.target(Paths.get(primaryNotebookUrl, "notebook").toUri())
+                            .request()
+                            .get(Notebook.class);
+
+            // Add complete noteboook to our secondary repository
+            secondaryNotebookRepository.add(notebook);
+
+            // Inform primary server that we're now a secondary server:
+            //     PUT {primaryUrl}/config/secondary/{notebookId}/{secondaryUrl}
+            client.target(Paths.get(primaryNotebookUrl, "config", "secondary", notebookId, getSelfHostPort()).toUri())
+                    .request()
+                    .post(null);
+
+            return Response.ok().build();
+
+        } catch (NamingException e) {
+            return Response.status(400).build();
+        }
     }
 
     @POST
@@ -130,7 +199,7 @@ public class NotebookService {
 
 
         // The request content consists of the new notebook's header, with only a title.
-        if(notebook.getTitle() == null || notebook.getTitle() == "") {
+        if (notebook.getTitle() == null || notebook.getTitle() == "") {
             return Response.status(400).build();
         }
 
@@ -165,9 +234,17 @@ public class NotebookService {
                              HttpServletResponse response) {
 
         // The request content must be a <note> element containing only a <content> element.
-        if(note.getContent() == null
+        if (note.getContent() == null
                 || note.getId() != null) {
             return Response.status(400).build();
+        }
+
+        // TODO: If a secondary server for the notebook receives this request, it should re-submit it to the
+        // notebook's primary server, and return the response code and content received.
+
+        // If we're a secondary server, we need to redirect the request to the primary
+        if (secondaryNotebookRepository.findNotebook(notebookId) != null) {
+            //context.getRequestDispatcher().forward(request,response);
         }
 
         // Create the note in the given notebook
@@ -176,10 +253,6 @@ public class NotebookService {
             return Response.status(404).build();
         }
         Note newNote = notebook.createNote(note.getContent());
-
-        // TODO: If a secondary server for the notebook receives this request, it should re-submit it to the
-        // notebook's primary server, and return the response code and content received.
-        //context.getRequestDispatcher().forward(request,response);
 
 
         // TODO: When a note is created, the notebook's primary server is responsible for informing any
