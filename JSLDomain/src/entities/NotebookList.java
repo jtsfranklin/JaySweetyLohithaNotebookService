@@ -41,4 +41,11 @@ public class NotebookList {
         Notebook notebookToDelete = findById(notebookId);
         notebooks.remove(notebookToDelete);
     }
+
+    public Notebook findByTitle(String title) {
+        for (Notebook nb : notebooks) {
+            if (title.equals(nb.getTitle())) return nb;
+        }
+        return null;
+    }
 }

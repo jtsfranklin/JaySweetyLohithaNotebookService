@@ -31,6 +31,12 @@ public class DirectoryBean implements Directory {
 
     @Override
     public String createNotebook(String title, String primaryUrl) throws NotebookAlreadyExistsException, BadAddressException {
+
+        if(notebooks.findByTitle(title) != null)
+        {
+            throw new NotebookAlreadyExistsException();
+        }
+
         String notebookId = UUID.randomUUID().toString();
 
         Notebook notebook = new Notebook();

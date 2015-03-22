@@ -96,7 +96,12 @@ public class NotebookService {
                             @PathParam("noteId") String noteId) {
 
         Note note = notebookRepository.findNote(notebookId, noteId);
-        return Response.ok(note).build();
+        if(note == null) {
+            return Response.status(404).build();
+        }
+        else {
+            return Response.ok(note).build();
+        }
     }
 
 
