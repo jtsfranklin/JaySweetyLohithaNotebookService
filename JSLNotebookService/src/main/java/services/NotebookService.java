@@ -33,7 +33,7 @@ public class NotebookService {
 
     private String getSelfHostPort() {
         if (selfHostport == null) {
-            selfHostport = uri.getBaseUri().getHost() + ":" + uri.getBaseUri().getPort();
+            selfHostport = uri.getBaseUri().toString();
         }
         return selfHostport;
     }
@@ -159,6 +159,7 @@ public class NotebookService {
 
         // TODO: If a secondary server for the notebook receives this request, it should re-submit it to the
         // notebook's primary server, and return the response code and content received.
+
 
         // TODO: When a note is created, the notebook's primary server is responsible for informing any
         // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
