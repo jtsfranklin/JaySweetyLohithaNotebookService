@@ -13,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SecondaryServerRepository {
 
-    private HashMap<String, List<String>> map;
+    // Maps a notebookID to a list of secondary URLs
+    private HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 
     public void add(String notebookId, String secondaryUrl) throws NotebookAlreadyExistsException {
         List<String> serverList = map.get(notebookId);
@@ -33,5 +34,9 @@ public class SecondaryServerRepository {
         }
         serverList.remove(secondaryUrl);
         map.put(notebookId, serverList);
+    }
+
+    public List<String> getServersForNotebook(String notebookId) {
+        return (List<String>)map.get(notebookId);
     }
 }

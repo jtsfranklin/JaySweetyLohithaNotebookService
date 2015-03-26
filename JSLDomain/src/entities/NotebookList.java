@@ -17,6 +17,13 @@ public class NotebookList {
         notebooks = new ArrayList<Notebook>();
     }
 
+    public NotebookList(NotebookList a, NotebookList b) {
+        List<Notebook> notebooks = new ArrayList<Notebook>();
+        notebooks.addAll(a.getNotebooks());
+        notebooks.addAll(b.getNotebooks());
+        this.notebooks = notebooks;
+    }
+
     public NotebookList(List<Notebook> notebooks) {
         this.notebooks = notebooks;
     }

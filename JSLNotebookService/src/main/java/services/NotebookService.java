@@ -4,6 +4,7 @@ package services;
 import javax.ejb.Stateless;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
@@ -12,9 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.*;
 
 import com.sun.jersey.api.client.WebResource;
 import dino.api.*;
@@ -24,8 +23,11 @@ import domain.SecondaryServerRepository;
 import entities.Note;
 import entities.NotebookList;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,11 +38,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Stateless
 public class NotebookService {
 
+    // Contains a list of notebooks for which we are a primary server
     private static NotebookRepository primaryNotebookRepository = new NotebookRepository();
+
+    // Contains a list of notebooks for which we are a secondary server
     private static NotebookRepository secondaryNotebookRepository = new NotebookRepository();
+
+    // Contains a list of servers that are registered as secondaries for us
     private static SecondaryServerRepository secondaryServerRepository = new SecondaryServerRepository();
 
+    // Service locator to provide a Directory EJB
     private static DirectoryFactory directoryFactory = new DirectoryFactory();
+
+    // Points to our own URI (defaults to calling context URI)
     private static String selfHostport = null;
 
     @Context
@@ -71,6 +81,24 @@ public class NotebookService {
         return Response.ok(notebookList).build();
     }
 
+
+    @DELETE
+    @Path("/notes/{notebookId}/{noteId}")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response deleteNote(@PathParam("notebookId") String notebookId, @PathParam("noteId") String noteId) {
+
+        Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
+        if (notebook == null) {
+            return Response.status(404).build();
+        } else {
+            if (notebook.find(noteId) == null) {
+                return Response.status(404).build();
+            }
+            notebook.deleteNoteById(noteId);
+            return Response.ok().build();
+        }
+    }
+
     @DELETE
     @Path("/notebook/{notebookId}")
     @Produces(MediaType.APPLICATION_XML)
@@ -89,7 +117,9 @@ public class NotebookService {
     @Path("/notebook")
     @Produces(MediaType.APPLICATION_XML)
     public Response getNotebooks() {
-        return Response.ok(primaryNotebookRepository.getNotebooks()).build();
+        NotebookList mergedList =
+                new NotebookList(primaryNotebookRepository.getNotebooks(), secondaryNotebookRepository.getNotebooks());
+        return Response.ok(mergedList).build();
     }
 
     @GET
@@ -161,8 +191,10 @@ public class NotebookService {
     @Produces(MediaType.APPLICATION_XML)
     public Response postSecondaryNotebook(@PathParam("notebookId") String notebookId) {
         try {
-            // Make sure it doesn't already exist
-            if (secondaryNotebookRepository.findNotebook(notebookId) != null) {
+
+            // Make sure we're not already a primary or secondary server
+            if (primaryNotebookRepository.findNotebook(notebookId) != null
+                    || secondaryNotebookRepository.findNotebook(notebookId) != null) {
                 return Response.status(409).build();
             }
 
@@ -182,16 +214,17 @@ public class NotebookService {
             Client client = Client.create();
             Notebook notebook = client
                     .resource(primaryNotebookUrl)
-                    .path("/notebook")
+                    .path("/notebook/" + notebookFromDirectory.getId())
                     .get(Notebook.class);
 
             // Add complete noteboook to our secondary repository
             secondaryNotebookRepository.add(notebook);
 
             // Inform primary server that we're now a secondary server:
-            //     PUT {primaryUrl}/config/secondary/{notebookId}/{secondaryUrl}
+            //     PUT {primaryUrl}/config/secondary/{notebookId}
+            //      {secondaryUrl}
             client.resource(primaryNotebookUrl)
-                    .path("/config/secondary/"+notebookId)
+                    .path("/config/secondary/" + notebookId)
                     .post(getSelfHostPort());
 
             return Response.ok().build();
@@ -234,11 +267,27 @@ public class NotebookService {
         }
     }
 
+    @PUT
+    @Path("/notes/{notebookId}/{noteId}")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response postNote(@PathParam("notebookId") String notebookId,
+                             @PathParam("noteId") String noteId,
+                             Note note) throws ServletException, IOException {
+
+        return postOrPutNote(notebookId, note, noteId);
+    }
+
     @POST
     @Path("/notes/{notebookId}")
     @Produces(MediaType.APPLICATION_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
-                             Note note) {
+                             Note note) throws ServletException, IOException {
+
+        return postOrPutNote(notebookId, note, null);
+    }
+
+    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
+        Client client = Client.create();
 
         // The request content must be a <note> element containing only a <content> element.
         if (note.getContent() == null
@@ -246,27 +295,60 @@ public class NotebookService {
             return Response.status(400).build();
         }
 
-        // TODO: If a secondary server for the notebook receives this request, it should re-submit it to the
-        // notebook's primary server, and return the response code and content received.
+        // If a secondary server for the notebook receives this request, it should re-submit it to the
+        // notebook's primary server
+        Notebook notebookForWhereWeAreASecondary = secondaryNotebookRepository.findNotebook(notebookId);
+        if (notebookForWhereWeAreASecondary != null) {
+            // We are a secondary server
 
-        // If we're a secondary server, we need to redirect the request to the primary
-        if (secondaryNotebookRepository.findNotebook(notebookId) != null) {
-            //context.getRequestDispatcher().forward(request,response);
+            String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
+            context.getRequestDispatcher(primaryUri).forward(request,response);
+            throw new RuntimeException("Should never get to this point");
+
+
+//            // Forward the request to the primary server
+//            String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
+//            ClientResponse response = client.resource(primaryUri)
+//                    .path("/notes/" + notebookId)
+//                    .post(ClientResponse.class, note);
+//
+//            // ...and return the response code and content received.
+//            if(response.getStatus() == 400)
+//            {
+//                return Response.ok(response.).type(response.getType()).build();
+//            }
+//            return Response.status(response.getStatus()).type(response.getType()).build();
+        } else {
+
+            // We are a primary server
+
+            // Create the note in the given notebook
+            Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
+            if (notebook == null) {
+                return Response.status(404).build();
+            }
+            Note newNote;
+            if(noteId != null) {
+                newNote = notebook.createNote(note.getContent());
+            } else {
+                newNote = notebook.createNote(note.getContent(), noteId);
+            }
+
+            // When a note is created, the notebook's primary server is responsible for informing any
+            // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
+            List<String> secondaries = secondaryServerRepository.getServersForNotebook(notebookId);
+            if(secondaries != null) {
+                for (String secondary : secondaries) {
+                    client.resource(secondary)
+                            .path("/notes/" + notebookId + "/" + newNote.getId())
+                            .put(newNote);
+                }
+            }
+
+            // The response is the new note, including the noteId assigned by the primary server.
+            return Response.ok(newNote).build();
+
         }
-
-        // Create the note in the given notebook
-        Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
-        if (notebook == null) {
-            return Response.status(404).build();
-        }
-        Note newNote = notebook.createNote(note.getContent());
-
-
-        // TODO: When a note is created, the notebook's primary server is responsible for informing any
-        // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
-
-        // The response is the new note, including the noteId assigned by the primary server.
-        return Response.ok(newNote).build();
     }
 
 

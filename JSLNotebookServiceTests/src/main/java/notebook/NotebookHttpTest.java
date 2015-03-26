@@ -110,7 +110,8 @@ public class NotebookHttpTest {
 		notebook.getNotes().add(note1);
 		notebook.getNotes().add(note2);
 		notebook.getNotes().add(note3);
-		compareNotebooks(notebook,getNotebook(resource1,notebook.getId()));
+        Notebook notebookFromServer = getNotebook(resource1,notebook.getId());
+		compareNotebooks(notebook,notebookFromServer);
 		
 		// delete a note and check things
 		deleteNote(resource1,notebook.getId(),note2.getId());

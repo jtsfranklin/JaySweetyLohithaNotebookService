@@ -4,6 +4,7 @@ import entities.Note;
 import entities.NotebookList;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class Notebook implements Serializable {
     private long lastNoteId = 0;
 
 
-    @XmlElement
+    @XmlElement(name="note")
     public List<Note> getNotes() {
         return notes;
     }
@@ -58,12 +59,35 @@ public class Notebook implements Serializable {
     }
 
     public Note createNote(String content){
-        String newId = Long.toString(lastNoteId+1);
+        return createNote(content, null);
+    }
+    public Note createNote(String content, String noteId){
+        String newId;
+        if(noteId != null) {
+            newId = Long.toString(lastNoteId+1);
+        } else {
+            newId = noteId;
+        }
         Note newNote = new Note();
         newNote.setContent(content);
         newNote.setId(newId);
-        notes.add(newNote);
+        addNote(newNote);
         ++lastNoteId;
         return newNote;
     }
+
+    private void addNote(Note newNote) {
+        Boolean noteAlreadyExists = (find(newNote.getId()) != null);
+        if(noteAlreadyExists)
+        {
+            deleteNoteById(newNote.getId());
+        }
+        notes.add(newNote);
+    }
+
+    public void deleteNoteById(String noteId) {
+        Note note = find(noteId);
+        notes.remove(note);
+    }
+
 }
