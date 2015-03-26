@@ -10,6 +10,9 @@
           <element id="library" level="project" name="ejb-3.2" />
           <element id="artifact" artifact-name="JSLDomain" />
           <element id="library" level="project" name="Jersey-2.2" />
+          <element id="library" level="project" name="Maven: org.glassfish.jersey.core:jersey-client:2.15" />
+          <element id="file-copy" path="$PROJECT_DIR$/JSLNotebookServiceTests/lib/jsr311-api-1.0.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/JSLNotebookServiceTests/lib/jersey-bundle-1.0.1.jar" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="JSLNotebookService/ejb/EJB" />
