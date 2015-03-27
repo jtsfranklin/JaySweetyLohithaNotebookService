@@ -280,34 +280,21 @@ public class NotebookService {
     }
 
 
-
     @PUT
-    @Path("/notesDontRecurse/{notebookId}/{noteId}")
+    @Path("/secondaryNote/{notebookId}/{noteId}")
     @Produces(MediaType.TEXT_XML)
-    public Response putNoteDontRecurse(@PathParam("notebookId") String notebookId,
-                             @PathParam("noteId") String noteId,
-                             Note note) throws ServletException, IOException {
+    public Response putSecondaryNote(@PathParam("notebookId") String notebookId,
+                                     @PathParam("noteId") String noteId,
+                                     Note note) throws ServletException, IOException {
 
         // The request content must be a <note> element containing only a <content> element.
         if (note.getContent() == null
                 || noteId == null) {
             return Response.status(400).build();
         }
-        return postOrPutNote(notebookId, note, noteId, false);
-    }
-
-    @POST
-    @Path("/notesDontRecurse/{notebookId}")
-    @Produces(MediaType.TEXT_XML)
-    public Response postNoteDontRecurse(@PathParam("notebookId") String notebookId,
-                             Note note) throws ServletException, IOException {
-
-        // The request content must be a <note> element containing only a <content> element.
-        if (note.getContent() == null
-                || note.getId() != null) {
-            return Response.status(400).build();
-        }
-        return postOrPutNote(notebookId, note, null, false);
+        Notebook notebookForWhereWeAreASecondary = secondaryNotebookRepository.findNotebook(notebookId);
+        notebookForWhereWeAreASecondary.createNote(note.getContent(),note.getId());
+        return Response.ok().build();
     }
 
 
@@ -325,7 +312,7 @@ public class NotebookService {
                 || noteId == null) {
             return Response.status(400).build();
         }
-        return postOrPutNote(notebookId, note, noteId, true);
+        return postOrPutNote(notebookId, note, noteId);
     }
 
     @POST
@@ -339,10 +326,10 @@ public class NotebookService {
                 || note.getId() != null) {
             return Response.status(400).build();
         }
-        return postOrPutNote(notebookId, note, null, true);
+        return postOrPutNote(notebookId, note, null);
     }
 
-    private Response postOrPutNote(String notebookId, Note note, String noteId, Boolean recurse) throws ServletException, IOException {
+    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
 
         Client client = Client.create();
 
@@ -358,7 +345,7 @@ public class NotebookService {
 
             if(noteId == null) {
                 Response response = client.resource(primaryUri)
-                        .path("/notesDontRecurse/" + notebookId)
+                        .path("/notes/" + notebookId)
                         .entity(note)
                         .type(MediaType.TEXT_XML)
                         .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
@@ -366,7 +353,7 @@ public class NotebookService {
                 return response;
             } else {
                 Response response = client.resource(primaryUri)
-                        .path("/notesDontRecurse/" + notebookId + "/" + noteId)
+                        .path("/notes/" + notebookId + "/" + noteId)
                         .entity(note)
                         .type(MediaType.TEXT_XML)
                         .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
@@ -390,19 +377,16 @@ public class NotebookService {
                 newNote = notebook.createNote(note.getContent(), noteId);
             }
 
-            if(recurse) {
-
-                // When a note is created, the notebook's primary server is responsible for informing any
-                // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
-                List<String> secondaries = secondaryServerRepository.getServersForNotebook(notebookId);
-                if(secondaries != null) {
-                    for (String secondary : secondaries) {
-                        client.resource(secondary)
-                                .path("/notes/" + notebookId + "/" + newNote.getId())
-                                .entity(newNote)
-                                .type("text/xml")
-                                .put();
-                    }
+            // When a note is created, the notebook's primary server is responsible for informing any
+            // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
+            List<String> secondaries = secondaryServerRepository.getServersForNotebook(notebookId);
+            if(secondaries != null) {
+                for (String secondary : secondaries) {
+                    client.resource(secondary)
+                            .path("/secondaryNote/" + notebookId + "/" + newNote.getId())
+                            .entity(newNote)
+                            .type("text/xml")
+                            .put();
                 }
             }
 
