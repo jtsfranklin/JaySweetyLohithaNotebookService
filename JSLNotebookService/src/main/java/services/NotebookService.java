@@ -73,7 +73,7 @@ public class NotebookService {
 
     @GET
     @Path("/notebook/all")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response getAll() throws NamingException {
         Directory directory = directoryFactory.Create();
         NotebookList notebookList = new NotebookList(directory.getAllNotebooks());
@@ -83,7 +83,7 @@ public class NotebookService {
 
     @DELETE
     @Path("/notes/{notebookId}/{noteId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response deleteNote(@PathParam("notebookId") String notebookId, @PathParam("noteId") String noteId) {
 
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
@@ -100,7 +100,7 @@ public class NotebookService {
 
     @DELETE
     @Path("/notebook/{notebookId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response deleteNotebook(@PathParam("notebookId") String notebookId) {
 
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
@@ -114,7 +114,7 @@ public class NotebookService {
 
     @GET
     @Path("/notebook")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response getNotebooks() {
         NotebookList mergedList =
                 new NotebookList(primaryNotebookRepository.getNotebooks(), secondaryNotebookRepository.getNotebooks());
@@ -123,7 +123,7 @@ public class NotebookService {
 
     @GET
     @Path("/notebook/{notebookId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response getNotebook(@PathParam("notebookId") String notebookId) {
 
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
@@ -143,14 +143,14 @@ public class NotebookService {
 
     @GET
     @Path("/notes/{notebookId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response getNotes(@PathParam("notebookId") String notebookId) {
         return getNotebook(notebookId);
     }
 
     @GET
     @Path("/notes/{notebookId}/{noteId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response getNote(@PathParam("notebookId") String notebookId,
                             @PathParam("noteId") String noteId) {
 
@@ -171,7 +171,7 @@ public class NotebookService {
 
     @POST
     @Path("/config/secondary/{notebookId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response configPostSecondaryNotebook(@PathParam("notebookId") String notebookId,
                                                 String secondaryUrl) {
         try {
@@ -184,7 +184,7 @@ public class NotebookService {
 
     @DELETE
     @Path("/config/secondary/{notebookId}/{secondaryUrl}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response configDeleteSecondaryNotebook(@PathParam("notebookId") String notebookId,
                                                   @PathParam("secondaryUrl") String secondaryUrl) {
         try {
@@ -200,7 +200,7 @@ public class NotebookService {
     // The secondary server is responsible for notifying the primary that the secondary copy has been created.
     @POST
     @Path("/secondary/{notebookId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response postSecondaryNotebook(@PathParam("notebookId") String notebookId) {
         try {
 
@@ -248,7 +248,7 @@ public class NotebookService {
 
     @POST
     @Path("/notebook")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response postNotebook(Notebook notebook) throws NamingException {
 
 
@@ -279,9 +279,43 @@ public class NotebookService {
         }
     }
 
+
+
+    @PUT
+    @Path("/notesDontRecurse/{notebookId}/{noteId}")
+    @Produces(MediaType.TEXT_XML)
+    public Response putNoteDontRecurse(@PathParam("notebookId") String notebookId,
+                             @PathParam("noteId") String noteId,
+                             Note note) throws ServletException, IOException {
+
+        // The request content must be a <note> element containing only a <content> element.
+        if (note.getContent() == null
+                || noteId == null) {
+            return Response.status(400).build();
+        }
+        return postOrPutNote(notebookId, note, noteId, false);
+    }
+
+    @POST
+    @Path("/notesDontRecurse/{notebookId}")
+    @Produces(MediaType.TEXT_XML)
+    public Response postNoteDontRecurse(@PathParam("notebookId") String notebookId,
+                             Note note) throws ServletException, IOException {
+
+        // The request content must be a <note> element containing only a <content> element.
+        if (note.getContent() == null
+                || note.getId() != null) {
+            return Response.status(400).build();
+        }
+        return postOrPutNote(notebookId, note, null, false);
+    }
+
+
+
+
     @PUT
     @Path("/notes/{notebookId}/{noteId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
                              @PathParam("noteId") String noteId,
                              Note note) throws ServletException, IOException {
@@ -291,12 +325,12 @@ public class NotebookService {
                 || noteId == null) {
             return Response.status(400).build();
         }
-        return postOrPutNote(notebookId, note, noteId);
+        return postOrPutNote(notebookId, note, noteId, true);
     }
 
     @POST
     @Path("/notes/{notebookId}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
                              Note note) throws ServletException, IOException {
 
@@ -305,10 +339,10 @@ public class NotebookService {
                 || note.getId() != null) {
             return Response.status(400).build();
         }
-        return postOrPutNote(notebookId, note, null);
+        return postOrPutNote(notebookId, note, null, true);
     }
 
-    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
+    private Response postOrPutNote(String notebookId, Note note, String noteId, Boolean recurse) throws ServletException, IOException {
 
         Client client = Client.create();
 
@@ -324,16 +358,18 @@ public class NotebookService {
 
             if(noteId == null) {
                 Response response = client.resource(primaryUri)
-                        .path("/notes/" + notebookId)
+                        .path("/notesDontRecurse/" + notebookId)
                         .entity(note)
-                        .type(MediaType.APPLICATION_XML)
+                        .type(MediaType.TEXT_XML)
+                        .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
                         .post(Response.class);
                 return response;
             } else {
                 Response response = client.resource(primaryUri)
-                        .path("/notes/" + notebookId + "/" + noteId)
+                        .path("/notesDontRecurse/" + notebookId + "/" + noteId)
                         .entity(note)
-                        .type(MediaType.APPLICATION_XML)
+                        .type(MediaType.TEXT_XML)
+                        .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
                         .put(Response.class);
                 return response;
             }
@@ -354,21 +390,24 @@ public class NotebookService {
                 newNote = notebook.createNote(note.getContent(), noteId);
             }
 
-            // When a note is created, the notebook's primary server is responsible for informing any
-            // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
-            List<String> secondaries = secondaryServerRepository.getServersForNotebook(notebookId);
-            if(secondaries != null) {
-                for (String secondary : secondaries) {
-                    client.resource(secondary)
-                            .path("/notes/" + notebookId + "/" + newNote.getId())
-                            .entity(newNote)
-                            .type("text/xml")
-                            .put();
+            if(recurse) {
+
+                // When a note is created, the notebook's primary server is responsible for informing any
+                // secondary copies about the new note. Your team is responsible for designing a way to make this happen.
+                List<String> secondaries = secondaryServerRepository.getServersForNotebook(notebookId);
+                if(secondaries != null) {
+                    for (String secondary : secondaries) {
+                        client.resource(secondary)
+                                .path("/notes/" + notebookId + "/" + newNote.getId())
+                                .entity(newNote)
+                                .type("text/xml")
+                                .put();
+                    }
                 }
             }
 
             // The response is the new note, including the noteId assigned by the primary server.
-            return Response.ok(newNote).build();
+            return Response.ok(newNote).type(MediaType.TEXT_XML).build();
 
         }
     }
@@ -384,7 +423,7 @@ public class NotebookService {
 
     @PUT
     @Path("/config/self/{hostport}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response setSelfHostPort(@PathParam("hostport") String hostport) {
         selfHostport = hostport;
         return Response.ok().build();
@@ -400,7 +439,7 @@ public class NotebookService {
 
     @PUT
     @Path("/config/jndi/{hostport}")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_XML)
     public Response setJndiHostPort(@PathParam("hostport") String hostport) {
         directoryFactory.setJndiHostPort(hostport);
         return Response.ok().build();
