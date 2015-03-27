@@ -87,29 +87,96 @@ public class NotebookService {
     public Response deleteNote(@PathParam("notebookId") String notebookId, @PathParam("noteId") String noteId) {
 
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
+
+        // If notebook doesn't exist, return 404
         if (notebook == null) {
+
             return Response.status(404).build();
+
         } else {
+            // If note doesn't exist, return 404
             if (notebook.find(noteId) == null) {
                 return Response.status(404).build();
             }
+
+            // Delete the note
             notebook.deleteNoteById(noteId);
+
+            // OK
             return Response.ok().build();
         }
     }
 
     @DELETE
     @Path("/notebook/{notebookId}")
-    @Produces(MediaType.TEXT_XML)
     public Response deleteNotebook(@PathParam("notebookId") String notebookId) {
 
+        Client client = new Client();
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
-        if (notebook == null) {
-            return Response.status(404).build();
+        Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
+
+        if (notebook != null) {
+
+            // Delete the primary copy
+            primaryNotebookRepository.deleteNotebook(notebookId);
+
+            // Inform all secondaries
+            List<String> secondaryServers = secondaryServerRepository.getServersForNotebook(notebookId);
+            for(String secondaryServer : secondaryServers) {
+                client.resource(secondaryServer)
+                        .path("/norecurse/notebook/" + notebook.getId())
+                        .delete();
+            }
+
+            // OK
+            return Response.ok().build();
+
+        } else if (secondaryNotebook != null) {
+
+            // Inform the primary server
+            return client.resource(notebook.getPrimaryNotebookUrl())
+                    .path("/notebook/" + notebook.getId())
+                    .delete(Response.class);
         } else {
+            // Not found
+            return Response.status(404).build();
+        }
+    }
+
+
+    @DELETE
+    @Path("/norecurse/notebook/{notebookId}")
+    public Response noRecurseDeleteNotebook(@PathParam("notebookId") String notebookId) {
+
+        Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
+        Notebook primaryNotebook = primaryNotebookRepository.findNotebook(notebookId);
+
+        if(primaryNotebook != null) {
+            return Response.status(409).build();
+        }
+        else if (secondaryNotebook != null) {
+
+            // Delete the secondary copy
             primaryNotebookRepository.deleteNotebook(notebookId);
             return Response.ok().build();
+
+        } else {
+            return Response.status(404).build();
         }
+    }
+
+
+    @DELETE
+    @Path("/secondary/notebook/{notebookId}")
+    public Response secondaryDeleteNotebook(@PathParam("notebookId") String notebookId) {
+
+        Client client = new Client();
+        Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
+
+        // Redirect to the primary
+        return client.resource(secondaryNotebook.getPrimaryNotebookUrl())
+                .path("/notebook/" + secondaryNotebook.getId())
+                .delete(Response.class);
     }
 
     @GET
