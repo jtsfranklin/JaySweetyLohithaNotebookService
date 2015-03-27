@@ -196,6 +196,32 @@ public class NotebookService {
     }
 
 
+
+    // Creates a secondary copy of a notebook in the server that receives the request.
+    // The secondary server is responsible for notifying the primary that the secondary copy has been created.
+    @DELETE
+    @Path("/secondary/{notebookId}")
+    public Response deleteSecondaryNotebook(@PathParam("notebookId") String notebookId) {
+
+        Notebook notebook = secondaryNotebookRepository.findNotebook(notebookId);
+        if (notebook == null) {
+            return Response.status(404).build();
+        } else {
+
+            // Inform the primary server
+            Client client = new Client();
+            client.resource(notebook.getPrimaryNotebookUrl())
+                    .path("/notebook/" + notebook.getId())
+                    .delete();
+
+            // Delete the local copy
+            secondaryNotebookRepository.deleteNotebook(notebookId);
+
+            return Response.ok().build();
+        }
+    }
+
+
     // Creates a secondary copy of a notebook in the server that receives the request.
     // The secondary server is responsible for notifying the primary that the secondary copy has been created.
     @POST
