@@ -25,8 +25,8 @@ public class NotebookHttpTest {
 	
 	// useful constants
 	public static final String      team = System.getProperty("team", "JSLNotebookService");
-	public static final String  dinoUrl1 = System.getProperty("url1", "http://localhost:8080/" + team);
-	public static final String  dinoUrl2 = System.getProperty("url2", "http://localhost:8080/" + team + "2");
+	public static final String  dinoUrl2 = System.getProperty("url1", "http://localhost:8080/" + team);
+	public static final String  dinoUrl1 = System.getProperty("url2", "http://localhost:8080/" + team + "2");
 	public static final String  dinoUrl3 = System.getProperty("url3", "http://localhost:8080/" + team + "3");
 	public static final String titleBase = System.getProperty("titleBase", "DiNo testing");
 	public static final String    fakeId = "--fake--";
@@ -148,7 +148,9 @@ public class NotebookHttpTest {
 		
 		// create a secondary copy
 		addSecondaryCopy(resource2,notebook.getId());
-		compareNotebooks(notebook,getNotebook(resource2,notebook.getId()));
+
+        Notebook notebookFromServer2 = getNotebook(resource2,notebook.getId());
+		compareNotebooks(notebook,notebookFromServer2);
 		
 		// add a couple of notes and verify that they are available at the secondary
 		Note note4 = addNote(resource1,notebook.getId());

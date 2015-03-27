@@ -129,7 +129,13 @@ public class NotebookService {
 
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
         if (notebook == null) {
-            return Response.status(404).build();
+
+            Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
+            if(secondaryNotebook == null) {
+                return Response.status(404).build();
+            } else {
+                return Response.ok(secondaryNotebook).build();
+            }
         } else {
             return Response.ok(notebook).build();
         }
@@ -151,7 +157,14 @@ public class NotebookService {
 
         Note note = primaryNotebookRepository.findNote(notebookId, noteId);
         if (note == null) {
-            return Response.status(404).build();
+
+            Note secondaryNote = secondaryNotebookRepository.findNote(notebookId, noteId);
+            if(secondaryNote == null) {
+                return Response.status(404).build();
+            } else {
+                return Response.ok(secondaryNote).build();
+            }
+
         } else {
             return Response.ok(note).build();
         }
@@ -301,9 +314,10 @@ public class NotebookService {
         if (notebookForWhereWeAreASecondary != null) {
             // We are a secondary server
 
-            String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
-            context.getRequestDispatcher(primaryUri).forward(request,response);
-            throw new RuntimeException("Should never get to this point");
+            throw new RuntimeException("Hey, were dispatching");
+            //String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
+            //context.getRequestDispatcher(primaryUri).forward(request,response);
+            //throw new RuntimeException("Should never get to this point");
 
 
 //            // Forward the request to the primary server
