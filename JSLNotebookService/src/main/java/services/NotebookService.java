@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 @Path("/")
-@Stateless
 public class NotebookService {
 
     // Contains a list of notebooks for which we are a primary server
@@ -317,46 +316,33 @@ public class NotebookService {
         // notebook's primary server
         Notebook notebookForWhereWeAreASecondary = secondaryNotebookRepository.findNotebook(notebookId);
         if (notebookForWhereWeAreASecondary != null) {
+
             // We are a secondary server
+            // Forward the request to the primary server
 
             String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
-            //context.getRequestDispatcher(primaryUri).forward(request,response);
-            //throw new RuntimeException("Should never get to this point!");
 
             if(noteId == null) {
                 Response response = client.resource(primaryUri)
                         .path("/notes/" + notebookId)
                         .entity(note)
-                        .type("text/xml")
+                        .type(MediaType.APPLICATION_XML)
                         .post(Response.class);
                 return response;
             } else {
-                ClientResponse response = client.resource(primaryUri)
+                Response response = client.resource(primaryUri)
                         .path("/notes/" + notebookId + "/" + noteId)
                         .entity(note)
-                        .type("text/xml")
-                        .put(ClientResponse.class);
-                return null;
+                        .type(MediaType.APPLICATION_XML)
+                        .put(Response.class);
+                return response;
             }
 
-
-//            // Forward the request to the primary server
-//            String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
-//            ClientResponse response = client.resource(primaryUri)
-//                    .path("/notes/" + notebookId)
-//                    .post(ClientResponse.class, note);
-//
-//            // ...and return the response code and content received.
-//            if(response.getStatus() == 400)
-//            {
-//                return Response.ok(response.).type(response.getType()).build();
-//            }
-//            return Response.status(response.getStatus()).type(response.getType()).build();
         } else {
 
             // We are a primary server
-
             // Create the note in the given notebook
+
             Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
             if (notebook == null) {
                 return Response.status(404).build();
