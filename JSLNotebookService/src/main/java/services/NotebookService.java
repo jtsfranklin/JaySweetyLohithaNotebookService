@@ -287,6 +287,11 @@ public class NotebookService {
                              @PathParam("noteId") String noteId,
                              Note note) throws ServletException, IOException {
 
+        // The request content must be a <note> element containing only a <content> element.
+        if (note.getContent() == null
+                || noteId == null) {
+            return Response.status(400).build();
+        }
         return postOrPutNote(notebookId, note, noteId);
     }
 
@@ -296,17 +301,17 @@ public class NotebookService {
     public Response postNote(@PathParam("notebookId") String notebookId,
                              Note note) throws ServletException, IOException {
 
-        return postOrPutNote(notebookId, note, null);
-    }
-
-    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
-        Client client = Client.create();
-
         // The request content must be a <note> element containing only a <content> element.
         if (note.getContent() == null
                 || note.getId() != null) {
             return Response.status(400).build();
         }
+        return postOrPutNote(notebookId, note, null);
+    }
+
+    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
+
+        Client client = Client.create();
 
         // If a secondary server for the notebook receives this request, it should re-submit it to the
         // notebook's primary server
@@ -314,10 +319,25 @@ public class NotebookService {
         if (notebookForWhereWeAreASecondary != null) {
             // We are a secondary server
 
-            throw new RuntimeException("Hey, were dispatching");
-            //String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
+            String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
             //context.getRequestDispatcher(primaryUri).forward(request,response);
-            //throw new RuntimeException("Should never get to this point");
+            //throw new RuntimeException("Should never get to this point!");
+
+            if(noteId == null) {
+                Response response = client.resource(primaryUri)
+                        .path("/notes/" + notebookId)
+                        .entity(note)
+                        .type("text/xml")
+                        .post(Response.class);
+                return response;
+            } else {
+                ClientResponse response = client.resource(primaryUri)
+                        .path("/notes/" + notebookId + "/" + noteId)
+                        .entity(note)
+                        .type("text/xml")
+                        .put(ClientResponse.class);
+                return null;
+            }
 
 
 //            // Forward the request to the primary server
@@ -355,7 +375,9 @@ public class NotebookService {
                 for (String secondary : secondaries) {
                     client.resource(secondary)
                             .path("/notes/" + notebookId + "/" + newNote.getId())
-                            .put(newNote);
+                            .entity(newNote)
+                            .type("text/xml")
+                            .put();
                 }
             }
 
