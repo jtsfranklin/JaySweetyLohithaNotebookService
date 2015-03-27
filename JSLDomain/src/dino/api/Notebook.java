@@ -63,8 +63,9 @@ public class Notebook implements Serializable {
     }
     public Note createNote(String content, String noteId){
         String newId;
-        if(noteId != null) {
+        if(noteId == null) {
             newId = Long.toString(lastNoteId+1);
+            ++lastNoteId;
         } else {
             newId = noteId;
         }
@@ -72,7 +73,6 @@ public class Notebook implements Serializable {
         newNote.setContent(content);
         newNote.setId(newId);
         addNote(newNote);
-        ++lastNoteId;
         return newNote;
     }
 

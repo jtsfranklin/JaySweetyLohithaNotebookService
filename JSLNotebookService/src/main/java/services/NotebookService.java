@@ -328,7 +328,7 @@ public class NotebookService {
                 return Response.status(404).build();
             }
             Note newNote;
-            if(noteId != null) {
+            if(noteId == null) {
                 newNote = notebook.createNote(note.getContent());
             } else {
                 newNote = notebook.createNote(note.getContent(), noteId);
