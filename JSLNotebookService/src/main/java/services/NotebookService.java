@@ -109,7 +109,7 @@ public class NotebookService {
 
     @DELETE
     @Path("/notebook/{notebookId}")
-    public Response deleteNotebook(@PathParam("notebookId") String notebookId) {
+    public Response deleteNotebook(@PathParam("notebookId") String notebookId) throws NotebookNotFoundException, NamingException {
 
         Client client = new Client();
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
@@ -119,6 +119,8 @@ public class NotebookService {
 
             // Delete the primary copy
             primaryNotebookRepository.deleteNotebook(notebookId);
+            Directory directory = directoryFactory.Create();
+            directory.deleteNotebook(notebookId);
 
             // Inform all secondaries
             List<String> secondaryServers = secondaryServerRepository.getServersForNotebook(notebookId);
