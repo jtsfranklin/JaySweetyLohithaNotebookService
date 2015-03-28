@@ -270,8 +270,12 @@ public class NotebookService {
     @Path("/secondary/{notebookId}")
     public Response deleteSecondaryNotebook(@PathParam("notebookId") String notebookId) {
 
+        Notebook primaryNotebook = primaryNotebookRepository.findNotebook(notebookId);
         Notebook notebook = secondaryNotebookRepository.findNotebook(notebookId);
-        if (notebook == null) {
+
+        if(primaryNotebook != null) {
+            return Response.status(409).build();
+        } else if (notebook == null) {
             return Response.status(404).build();
         } else {
 
@@ -380,13 +384,28 @@ public class NotebookService {
                                      @PathParam("noteId") String noteId,
                                      Note note) throws ServletException, IOException {
 
-        // The request content must be a <note> element containing only a <content> element.
+
         if (note.getContent() == null
                 || noteId == null) {
             return Response.status(400).build();
         }
-        Notebook notebookForWhereWeAreASecondary = secondaryNotebookRepository.findNotebook(notebookId);
-        notebookForWhereWeAreASecondary.createNote(note.getContent(),note.getId());
+
+        // Find the notebook in our secondary repository
+        Notebook notebook = secondaryNotebookRepository.findNotebook(notebookId);
+        if(notebook == null)
+        {
+            return Response.status(404).build();
+        }
+
+        // If the note already exists, update it
+        Note noteFromRepository = notebook.find(noteId);
+        if(noteFromRepository != null) {
+            noteFromRepository.setContent(note.getContent());
+        }
+        // If the note is new, create it
+        else {
+            notebook.createNote(note.getContent(),note.getId());
+        }
         return Response.ok().build();
     }
 
