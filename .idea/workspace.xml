@@ -40,8 +40,32 @@
       <file leaf-file-name="NotebookHttpTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/JSLNotebookServiceTests/src/main/java/notebook/NotebookHttpTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5345912" vertical-offset="7174" max-vertical-offset="16456">
-              <caret line="432" column="4" selection-start-line="432" selection-start-column="4" selection-end-line="432" selection-end-column="4" />
+            <state vertical-scroll-proportion="0.7075472" vertical-offset="4620" max-vertical-offset="16473">
+              <caret line="285" column="4" selection-start-line="285" selection-start-column="4" selection-end-line="285" selection-end-column="4" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Notebook.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JSLNotebookServiceTests/src/main/java/entity/Notebook.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="84" max-vertical-offset="680">
+              <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+              <folding>
+                <element signature="e#390#391#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="NotebookService.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/JSLNotebookService/src/main/java/services/NotebookService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.86206895" vertical-offset="1811" max-vertical-offset="9248">
+              <caret line="108" column="0" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -66,8 +90,8 @@
         <option value="$PROJECT_DIR$/JSLDomain/src/domain/SecondaryServerRepository.java" />
         <option value="$PROJECT_DIR$/JSLDomain/src/dino/api/Notebook.java" />
         <option value="$PROJECT_DIR$/JSLDirectoryService/src/domain/DirectoryBean.java" />
-        <option value="$PROJECT_DIR$/JSLNotebookServiceTests/src/main/java/notebook/NotebookHttpTest.java" />
         <option value="$PROJECT_DIR$/JSLNotebookService/src/main/java/services/NotebookService.java" />
+        <option value="$PROJECT_DIR$/JSLNotebookServiceTests/src/main/java/notebook/NotebookHttpTest.java" />
       </list>
     </option>
   </component>
@@ -1220,12 +1244,12 @@
       <workItem from="1427413158861" duration="15912000" />
       <workItem from="1427475102429" duration="2024000" />
       <workItem from="1427496774442" duration="10172000" />
-      <workItem from="1427569629829" duration="5113000" />
+      <workItem from="1427569629829" duration="5546000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="93965000" />
+    <option name="totallyTimeSpent" value="94398000" />
   </component>
   <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
@@ -1249,7 +1273,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1296" height="776" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32928804" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1302,6 +1326,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/JSLNotebookServiceTests/src/main/java/notebook/NotebookHttpTest.java</url>
+          <line>278</line>
+          <properties />
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -1317,7 +1349,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="82" />
+      <option name="time" value="84" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="GlassfishConfiguration">
@@ -1788,16 +1820,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/JSLNotebookService/src/main/java/services/NotebookService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8504155" vertical-offset="1971" max-vertical-offset="8789">
-          <caret line="161" column="0" selection-start-line="161" selection-start-column="0" selection-end-line="161" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="-0.86206895" vertical-offset="1811" max-vertical-offset="9248">
+          <caret line="108" column="0" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/JSLNotebookServiceTests/src/main/java/notebook/NotebookHttpTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5345912" vertical-offset="7174" max-vertical-offset="16456">
-          <caret line="432" column="4" selection-start-line="432" selection-start-column="4" selection-end-line="432" selection-end-column="4" />
+        <state vertical-scroll-proportion="0.7075472" vertical-offset="4620" max-vertical-offset="16473">
+          <caret line="285" column="4" selection-start-line="285" selection-start-column="4" selection-end-line="285" selection-end-column="4" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

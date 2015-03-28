@@ -732,6 +732,7 @@ public class NotebookHttpTest {
 		Assert.assertNull("unexpected exception",re);
 		verifyAbsentNotebook(resource,id);
 	}
+
 	private void deleteNote(WebResource resource, String notebookId, String noteId) {
 		UniformInterfaceException uie = null;
 		RuntimeException re = null;

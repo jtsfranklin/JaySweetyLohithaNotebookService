@@ -134,8 +134,8 @@ public class NotebookService {
         } else if (secondaryNotebook != null) {
 
             // Inform the primary server
-            return client.resource(notebook.getPrimaryNotebookUrl())
-                    .path("/notebook/" + notebook.getId())
+            return client.resource(secondaryNotebook.getPrimaryNotebookUrl())
+                    .path("/notebook/" + notebookId)
                     .delete(Response.class);
         } else {
             // Not found
