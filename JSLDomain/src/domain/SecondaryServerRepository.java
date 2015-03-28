@@ -37,6 +37,7 @@ public class SecondaryServerRepository {
     }
 
     public List<String> getServersForNotebook(String notebookId) {
-        return (List<String>)map.get(notebookId);
+        List<String> serverList = map.get(notebookId);
+        return serverList == null ? new ArrayList<String>() : serverList;
     }
 }

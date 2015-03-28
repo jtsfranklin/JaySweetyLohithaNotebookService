@@ -124,7 +124,7 @@ public class NotebookService {
 
             // Inform all secondaries
             List<String> secondaryServers = secondaryServerRepository.getServersForNotebook(notebookId);
-            for(String secondaryServer : secondaryServers) {
+            for (String secondaryServer : secondaryServers) {
                 client.resource(secondaryServer)
                         .path("/norecurse/notebook/" + notebook.getId())
                         .delete();
