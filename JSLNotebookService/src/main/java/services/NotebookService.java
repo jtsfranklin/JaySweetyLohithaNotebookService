@@ -72,7 +72,7 @@ public class NotebookService {
     }
 
     @GET
-    @Path("/notebook/all")
+    @Path("/all")
     @Produces(MediaType.TEXT_XML)
     public Response getAll() throws NamingException {
         Directory directory = directoryFactory.Create();

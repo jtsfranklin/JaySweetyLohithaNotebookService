@@ -50,6 +50,6 @@ public class DirectoryBean implements Directory {
 
     @Override
     public void deleteNotebook(String id) throws NotebookNotFoundException {
-
+        notebooks.deleteNotebook(id);
     }
 }

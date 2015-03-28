@@ -915,7 +915,7 @@ public class NotebookHttpTest {
 		}
 		
 		// check things
-		Assert.assertNull("unexpected notebook",notebook);
+    	Assert.assertNull("unexpected notebook",notebook);
 		Assert.assertNotNull("GET" + uri + " should have returned 404",uie);
 		Assert.assertEquals("GET" + uri + " should have returned 404",Response.Status.NOT_FOUND.getStatusCode(),uie.getResponse().getStatus());
 		Assert.assertNull("unexpected exception",re);
