@@ -191,27 +191,42 @@ public class NotebookService {
     @GET
     @Path("/notebook/{notebookId}")
     @Produces(MediaType.TEXT_XML)
-    public Response getNotebook(@PathParam("notebookId") String notebookId) {
+    public Response getNotebook(@PathParam("notebookId") String notebookId) throws NamingException {
 
+        // If we are the primary, just return the notebook
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
-        if (notebook == null) {
-
-            Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
-            if(secondaryNotebook == null) {
-                return Response.status(404).build();
-            } else {
-                return Response.ok(secondaryNotebook).build();
-            }
-        } else {
-            return Response.ok(notebook).build();
+        if(notebook != null) {
+            return Response.ok(notebook).type(MediaType.TEXT_XML).build();
         }
+        // If we are the primary, just return the notebook
+        Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
+        if(secondaryNotebook != null) {
+            return Response.ok(secondaryNotebook).type(MediaType.TEXT_XML).build();
+        }
+
+        // Grab the notebook metadata from the directory
+        Directory directory = directoryFactory.Create();
+        Notebook notebookFromDirectory = directory.getNotebook(notebookId);
+
+        // If the notebook doesn't exist at all, return 404
+        if(notebookFromDirectory == null) {
+            return Response.status(404).build();
+        }
+
+        // Otherwise, forward the request to the primary
+        Client client = new Client();
+        Response response = client.resource(notebookFromDirectory.getPrimaryNotebookUrl())
+                .path("/notebook/" + notebookId)
+                .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
+                .get(Response.class);
+        return response;
     }
 
 
     @GET
     @Path("/notes/{notebookId}")
     @Produces(MediaType.TEXT_XML)
-    public Response getNotes(@PathParam("notebookId") String notebookId) {
+    public Response getNotes(@PathParam("notebookId") String notebookId) throws NamingException {
         return getNotebook(notebookId);
     }
 
