@@ -113,7 +113,7 @@ public class NotebookService {
     @Path("/notebook/{notebookId}")
     public Response deleteNotebook(@PathParam("notebookId") String notebookId) throws NotebookNotFoundException, NamingException {
 
-        Client client = new Client();
+        javax.ws.rs.client.Client client = ClientBuilder.newClient();
         Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
         Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
 
@@ -127,8 +127,9 @@ public class NotebookService {
             // Inform all secondaries
             List<String> secondaryServers = secondaryServerRepository.getServersForNotebook(notebookId);
             for (String secondaryServer : secondaryServers) {
-                client.resource(secondaryServer)
+                client.target(secondaryServer)
                         .path("/norecurse/notebook/" + notebook.getId())
+                        .request()
                         .delete();
             }
 
@@ -138,8 +139,9 @@ public class NotebookService {
         } else if (secondaryNotebook != null) {
 
             // Inform the primary server
-            return client.resource(secondaryNotebook.getPrimaryNotebookUrl())
+            return client.target(secondaryNotebook.getPrimaryNotebookUrl())
                     .path("/notebook/" + notebookId)
+                    .request()
                     .delete(Response.class);
         } else {
             // Not found
@@ -174,12 +176,13 @@ public class NotebookService {
     @Path("/secondary/notebook/{notebookId}")
     public Response secondaryDeleteNotebook(@PathParam("notebookId") String notebookId) {
 
-        Client client = new Client();
+        javax.ws.rs.client.Client client = ClientBuilder.newClient();
         Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
 
         // Redirect to the primary
-        return client.resource(secondaryNotebook.getPrimaryNotebookUrl())
+        return client.target(secondaryNotebook.getPrimaryNotebookUrl())
                 .path("/notebook/" + secondaryNotebook.getId())
+                .request()
                 .delete(Response.class);
     }
 
@@ -299,9 +302,10 @@ public class NotebookService {
         } else {
 
             // Inform the primary server
-            Client client = new Client();
-            client.resource(notebook.getPrimaryNotebookUrl())
+            javax.ws.rs.client.Client client = ClientBuilder.newClient();
+            client.target(notebook.getPrimaryNotebookUrl())
                     .path("/notebook/" + notebook.getId())
+                    .request()
                     .delete();
 
             // Delete the local copy
@@ -462,7 +466,7 @@ public class NotebookService {
 
     private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
 
-        Client client = Client.create();
+        javax.ws.rs.client.Client client = ClientBuilder.newClient();
 
         // If a secondary server for the notebook receives this request, it should re-submit it to the
         // notebook's primary server
@@ -475,20 +479,16 @@ public class NotebookService {
             String primaryUri = notebookForWhereWeAreASecondary.getPrimaryNotebookUrl();
 
             if(noteId == null) {
-                Response response = client.resource(primaryUri)
+                Response response = client.target(primaryUri)
                         .path("/notes/" + notebookId)
-                        .entity(note)
-                        .type(MediaType.TEXT_XML)
-                        .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
-                        .post(Response.class);
+                        .request(MediaType.TEXT_XML)
+                        .post(Entity.entity(note, MediaType.TEXT_XML), Response.class);
                 return response;
             } else {
-                Response response = client.resource(primaryUri)
+                Response response = client.target(primaryUri)
                         .path("/notes/" + notebookId + "/" + noteId)
-                        .entity(note)
-                        .type(MediaType.TEXT_XML)
-                        .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
-                        .put(Response.class);
+                        .request(MediaType.TEXT_XML)
+                        .post(Entity.entity(note, MediaType.TEXT_XML), Response.class);
                 return response;
             }
 
@@ -513,11 +513,10 @@ public class NotebookService {
             List<String> secondaries = secondaryServerRepository.getServersForNotebook(notebookId);
             if(secondaries != null) {
                 for (String secondary : secondaries) {
-                    client.resource(secondary)
+                    client.target(secondary)
                             .path("/secondaryNote/" + notebookId + "/" + newNote.getId())
-                            .entity(newNote)
-                            .type("text/xml")
-                            .put();
+                            .request()
+                            .put(Entity.entity(newNote, MediaType.TEXT_XML));
                 }
             }
 
