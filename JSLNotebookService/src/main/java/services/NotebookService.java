@@ -157,7 +157,7 @@ public class NotebookService {
         else if (secondaryNotebook != null) {
 
             // Delete the secondary copy
-            primaryNotebookRepository.deleteNotebook(notebookId);
+            secondaryNotebookRepository.deleteNotebook(notebookId);
             return Response.ok().build();
 
         } else {
