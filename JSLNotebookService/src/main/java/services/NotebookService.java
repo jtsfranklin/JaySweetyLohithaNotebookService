@@ -488,7 +488,7 @@ public class NotebookService {
                 Response response = client.target(primaryUri)
                         .path("/notes/" + notebookId + "/" + noteId)
                         .request(MediaType.TEXT_XML)
-                        .post(Entity.entity(note, MediaType.TEXT_XML), Response.class);
+                        .put(Entity.entity(note, MediaType.TEXT_XML), Response.class);
                 return response;
             }
 
