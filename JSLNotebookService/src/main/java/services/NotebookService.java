@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.sun.jersey.api.client.*;
 
+import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import dino.api.*;
 import domain.DirectoryFactory;
@@ -216,10 +218,10 @@ public class NotebookService {
         }
 
         // Otherwise, forward the request to the primary
-        Client client = new Client();
-        Response response = client.resource(notebookFromDirectory.getPrimaryNotebookUrl())
+        javax.ws.rs.client.Client client = ClientBuilder.newClient();
+        Response response = client.target(notebookFromDirectory.getPrimaryNotebookUrl())
                 .path("/notebook/" + notebookId)
-                .accept(MediaType.TEXT_XML).accept(MediaType.APPLICATION_XML)
+                .request(MediaType.TEXT_XML)
                 .get(Response.class);
         return response;
     }
