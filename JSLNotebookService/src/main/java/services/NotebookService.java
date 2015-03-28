@@ -241,20 +241,42 @@ public class NotebookService {
     @Path("/notes/{notebookId}/{noteId}")
     @Produces(MediaType.TEXT_XML)
     public Response getNote(@PathParam("notebookId") String notebookId,
-                            @PathParam("noteId") String noteId) {
+                            @PathParam("noteId") String noteId) throws NamingException {
 
-        Note note = primaryNotebookRepository.findNote(notebookId, noteId);
-        if (note == null) {
+        Notebook primaryNotebook = primaryNotebookRepository.findNotebook(notebookId);
+        Notebook secondaryNotebook = secondaryNotebookRepository.findNotebook(notebookId);
 
-            Note secondaryNote = secondaryNotebookRepository.findNote(notebookId, noteId);
-            if(secondaryNote == null) {
-                return Response.status(404).build();
+        // If we're the primary, just return the note
+        if(primaryNotebook != null) {
+            Note note = primaryNotebookRepository.findNote(notebookId, noteId);
+            if(note != null) {
+                return Response.ok(note).build();
             } else {
-                return Response.ok(secondaryNote).build();
+                return Response.status(404).build();
             }
-
-        } else {
-            return Response.ok(note).build();
+        }
+        // If we're a secondary, return it from the secondary repository
+        else if (secondaryNotebook != null) {
+            Note note = secondaryNotebookRepository.findNote(notebookId, noteId);
+            if(note != null) {
+                return Response.ok(note).build();
+            } else {
+                return Response.status(404).build();
+            }
+        }
+        // Otherwise, forward to the primary server
+        else {
+            Directory directory = directoryFactory.Create();
+            Notebook notebookFromDirectory = directory.getNotebook(notebookId);
+            if(notebookFromDirectory == null) {
+                return Response.status(404).build();
+            }
+            javax.ws.rs.client.Client client = ClientBuilder.newClient();
+            Response response = client.target(notebookFromDirectory.getPrimaryNotebookUrl())
+                    .path("/notes/" + notebookId + "/" + noteId)
+                    .request(MediaType.TEXT_XML)
+                    .get(Response.class);
+            return response;
         }
     }
 
