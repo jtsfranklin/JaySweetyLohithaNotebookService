@@ -462,7 +462,7 @@ public class NotebookService {
     @Produces(MediaType.TEXT_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
                              @PathParam("noteId") String noteId,
-                             Note note) throws ServletException, IOException {
+                             Note note) throws ServletException, IOException, NamingException {
 
         // The request content must be a <note> element containing only a <content> element.
         if (note.getContent() == null
@@ -476,7 +476,7 @@ public class NotebookService {
     @Path("/notes/{notebookId}")
     @Produces(MediaType.TEXT_XML)
     public Response postNote(@PathParam("notebookId") String notebookId,
-                             Note note) throws ServletException, IOException {
+                             Note note) throws ServletException, IOException, NamingException {
 
         // The request content must be a <note> element containing only a <content> element.
         if (note.getContent() == null
@@ -486,13 +486,15 @@ public class NotebookService {
         return postOrPutNote(notebookId, note, null);
     }
 
-    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException {
+    private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException, NamingException {
 
         javax.ws.rs.client.Client client = ClientBuilder.newClient();
 
         // If a secondary server for the notebook receives this request, it should re-submit it to the
         // notebook's primary server
         Notebook notebookForWhereWeAreASecondary = secondaryNotebookRepository.findNotebook(notebookId);
+        Notebook notebookWhereWeArePrimary = primaryNotebookRepository.findNotebook(notebookId);
+
         if (notebookForWhereWeAreASecondary != null) {
 
             // We are a secondary server
@@ -514,20 +516,19 @@ public class NotebookService {
                 return response;
             }
 
-        } else {
+        } else if(notebookWhereWeArePrimary != null) {
 
             // We are a primary server
             // Create the note in the given notebook
 
-            Notebook notebook = primaryNotebookRepository.findNotebook(notebookId);
-            if (notebook == null) {
+            if (notebookWhereWeArePrimary == null) {
                 return Response.status(404).build();
             }
             Note newNote;
             if(noteId == null) {
-                newNote = notebook.createNote(note.getContent());
+                newNote = notebookWhereWeArePrimary.createNote(note.getContent());
             } else {
-                newNote = notebook.createNote(note.getContent(), noteId);
+                newNote = notebookWhereWeArePrimary.createNote(note.getContent(), noteId);
             }
 
             // When a note is created, the notebook's primary server is responsible for informing any
@@ -545,6 +546,35 @@ public class NotebookService {
             // The response is the new note, including the noteId assigned by the primary server.
             return Response.ok(newNote).type(MediaType.TEXT_XML).build();
 
+        }
+        // We're not a primary or a secondary server; forward to primary
+        else {
+
+            // Grab the notebook metadata from the directory
+            Directory directory = directoryFactory.Create();
+            Notebook notebookFromDirectory = directory.getNotebook(notebookId);
+
+            // If the notebook doesn't exist at all, return 404
+            if(notebookFromDirectory == null) {
+                return Response.status(404).build();
+            }
+
+            String primaryUri = notebookFromDirectory.getPrimaryNotebookUrl();
+
+            // Forward to primary
+            if(noteId == null) {
+                Response response = client.target(primaryUri)
+                        .path("/notes/" + notebookId)
+                        .request(MediaType.TEXT_XML)
+                        .post(Entity.entity(note, MediaType.TEXT_XML), Response.class);
+                return response;
+            } else {
+                Response response = client.target(primaryUri)
+                        .path("/notes/" + notebookId + "/" + noteId)
+                        .request(MediaType.TEXT_XML)
+                        .put(Entity.entity(note, MediaType.TEXT_XML), Response.class);
+                return response;
+            }
         }
     }
 
