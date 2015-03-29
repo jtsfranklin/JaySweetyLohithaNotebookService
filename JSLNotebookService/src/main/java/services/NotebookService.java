@@ -488,6 +488,7 @@ public class NotebookService {
 
     private Response postOrPutNote(String notebookId, Note note, String noteId) throws ServletException, IOException, NamingException {
 
+        Client c = new Client();
         javax.ws.rs.client.Client client = ClientBuilder.newClient();
 
         // If a secondary server for the notebook receives this request, it should re-submit it to the
